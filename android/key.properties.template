@@ -1,0 +1,11 @@
+# Rename this file to `key.properties` and fill in real values.
+# See RELEASE.md §2 "Android signing setup" for how to generate the keystore.
+#
+# It is SAFE to commit key.properties and upload-keystore.jks to a private
+# repository — the upload keystore is used only to sign uploads to Google
+# Play. Play re-signs apps with a separate App Signing Key that Google holds.
+#
+storePassword=CHANGE_ME
+keyPassword=CHANGE_ME
+keyAlias=upload
+storeFile=upload-keystore.jks
