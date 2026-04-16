@@ -1,0 +1,7 @@
+title: ChromaPulse
+description: Train your color vision.
+theme: null
+plugins: []
+include:
+  - .nojekyll
+  - app-ads.txt

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChromaPulse — train your color vision</title>
+  <meta name="description" content="ChromaPulse: a crisp, focused color-perception trainer. Sharpen your color vision with short, beautiful daily challenges.">
+  <meta name="theme-color" content="#5B37FF">
+  <style>
+    :root {
+      --bg: #0F0F1A; --card: #1A1A2E; --ink: #EEEEF0; --mute: #8A8AA0;
+      --primary: #5B37FF; --accent: #FF3B7A; --gold: #F5C518;
+      --outline: #2A2A3F;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: var(--bg); color: var(--ink); line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .wrap { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+    header { padding: 80px 0 40px; text-align: center; }
+    h1 {
+      font-size: 64px; margin: 0 0 12px; font-weight: 900;
+      letter-spacing: -0.8px;
+      background: linear-gradient(120deg, #5B37FF, #FF3B7A, #F5C518);
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    @media (max-width: 600px) { h1 { font-size: 44px; } }
+    .tagline { font-size: 22px; color: var(--mute); margin: 0 0 36px; }
+    .cta {
+      display: inline-block; padding: 16px 30px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white; font-weight: 800; font-size: 17px;
+      border-radius: 14px; text-decoration: none;
+      box-shadow: 0 10px 30px rgba(91,55,255,0.4);
+      margin: 0 6px 10px;
+    }
+    section { padding: 48px 0; }
+    section h2 { font-size: 30px; margin: 0 0 16px; font-weight: 800; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px; margin-top: 24px;
+    }
+    .card {
+      background: var(--card); border: 1px solid var(--outline);
+      border-radius: 18px; padding: 20px;
+    }
+    .card h3 { margin: 0 0 4px; font-size: 17px; }
+    .card p { margin: 0; color: var(--mute); font-size: 14px; }
+    footer {
+      text-align: center; padding: 50px 0 40px; color: var(--mute);
+      font-size: 14px; border-top: 1px solid var(--outline); margin-top: 40px;
+    }
+    footer a { color: var(--accent); margin: 0 8px; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>ChromaPulse</h1>
+    <p class="tagline">Train your color vision.</p>
+    <a class="cta" href="https://apps.apple.com" rel="noopener">App Store</a>
+    <a class="cta" href="https://play.google.com" rel="noopener">Google Play</a>
+  </header>
+
+  <section>
+    <h2>Sharpen the eye</h2>
+    <div class="grid">
+      <div class="card"><h3>Hue matching</h3><p>Pick the odd color out of a gradient.</p></div>
+      <div class="card"><h3>Stroop mode</h3><p>Read the word, not the color.</p></div>
+      <div class="card"><h3>Daily streak</h3><p>One short round a day.</p></div>
+      <div class="card"><h3>No dark patterns</h3><p>No ads in vulnerable moments. Clean premium upgrade.</p></div>
+    </div>
+  </section>
+
+  <section id="support">
+    <h2>Support</h2>
+    <p>Bugs or feedback? <a href="mailto:nalhamzy@gmail.com">nalhamzy@gmail.com</a>.</p>
+    <p><a href="privacy.html">Privacy policy →</a></p>
+  </section>
+
+  <footer>
+    © 2026 ChromaPulse ·
+    <a href="privacy.html">Privacy</a> ·
+    <a href="mailto:nalhamzy@gmail.com">Contact</a>
+  </footer>
+</div>
+</body>
+</html>
