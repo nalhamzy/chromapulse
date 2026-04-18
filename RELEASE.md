@@ -65,8 +65,8 @@ Under **In-App Purchases** → **+** for each:
 
 | Product ID (must match code exactly) | Reference Name | Type | Suggested Price |
 |---|---|---|---|
-| `remove_ads` | Remove Ads | Non-Consumable | $1.99 (Tier 2) |
-| `vip_pass` | VIP Pass | Non-Consumable | $4.99 (Tier 5) |
+| `chromapulse_remove_ads` | Remove Ads | Non-Consumable | $1.99 (Tier 2) |
+| `chromapulse_vip_pass` | VIP Pass | Non-Consumable | $4.99 (Tier 5) |
 
 For each product:
 - Add at least one localization (English) with **Display Name** and **Description**.
@@ -172,8 +172,8 @@ Create both products with IDs matching the code exactly:
 
 | Product ID | Name | Description | Price |
 |---|---|---|---|
-| `remove_ads` | Remove Ads | Hide all banner and interstitial ads forever. | $1.99 |
-| `vip_pass` | VIP Pass | Removes ads and unlocks future bonus content. | $4.99 |
+| `chromapulse_remove_ads` | Remove Ads | Hide all banner and interstitial ads forever. | $1.99 |
+| `chromapulse_vip_pass` | VIP Pass | Removes ads and unlocks future bonus content. | $4.99 |
 
 Each product status must be **Active**.
 
@@ -269,7 +269,7 @@ Expected output:
    - iPhone 6.5" — optional fallback
    - iPad 13" (2064 × 2752) — **required if you support iPad**
    - Use the iOS Simulator at exact sizes. iPhone 15 Pro Max simulator → Cmd+S gives you 1290×2796 natively.
-4. Under **In-App Purchases and Subscriptions** on the version page, click **+** and attach `remove_ads` + `vip_pass` to this build.
+4. Under **In-App Purchases and Subscriptions** on the version page, click **+** and attach `chromapulse_remove_ads` + `chromapulse_vip_pass` to this build.
 5. **Submit for Review**.
 
 **⚠ Avoid these rejection traps (learned from color_chaos):**

@@ -112,7 +112,7 @@ https://nalhamzy.github.io/chromapulse/privacy.html
 
 ### App Review — Review Notes
 ```
-ChromaPulse has no account, login, or server backend. All stats are stored locally via SharedPreferences. IAPs are two non-consumables (remove_ads, vip_pass). Sandbox purchases can be verified with any tester account. Ads use AdMob. No demo account required.
+ChromaPulse has no account, login, or server backend. All stats are stored locally via SharedPreferences. IAPs are two non-consumables (chromapulse_remove_ads, chromapulse_vip_pass). Sandbox purchases can be verified with any tester account. Ads use AdMob. No demo account required.
 ```
 
 ### App Review — Contact Info
@@ -127,7 +127,7 @@ ChromaPulse has no account, login, or server backend. All stats are stored local
 
 | Field | Value |
 |---|---|
-| Product ID | `remove_ads` |
+| Product ID | `chromapulse_remove_ads` |
 | Reference Name | `Remove Ads` |
 | Type | Non-Consumable |
 | Price Tier | Tier 2 ($1.99) |
@@ -139,7 +139,7 @@ ChromaPulse has no account, login, or server backend. All stats are stored local
 
 | Field | Value |
 |---|---|
-| Product ID | `vip_pass` |
+| Product ID | `chromapulse_vip_pass` |
 | Reference Name | `VIP Pass` |
 | Type | Non-Consumable |
 | Price Tier | Tier 5 ($4.99) |
@@ -202,7 +202,7 @@ https://nalhamzy.github.io/chromapulse/privacy.html
 
 | Field | Value |
 |---|---|
-| Product ID | `remove_ads` |
+| Product ID | `chromapulse_remove_ads` |
 | Name | `Remove Ads` |
 | Description | `Hide banner and interstitial ads forever. One-time purchase. Support ChromaPulse development.` |
 | Price | `$1.99 USD` |
@@ -212,7 +212,7 @@ https://nalhamzy.github.io/chromapulse/privacy.html
 
 | Field | Value |
 |---|---|
-| Product ID | `vip_pass` |
+| Product ID | `chromapulse_vip_pass` |
 | Name | `VIP Pass` |
 | Description | `Remove ads forever and unlock future bonus content, new modes, and exclusive themes. The ultimate ChromaPulse experience.` |
 | Price | `$4.99 USD` |
@@ -256,7 +256,7 @@ Use these identically on App Store Connect and Google Play IARC:
 | Loot boxes / randomized purchases | No |
 | Purchase of physical goods | No |
 | Shares user location | No |
-| Digital purchases (IAPs) | Yes — `remove_ads`, `vip_pass` |
+| Digital purchases (IAPs) | Yes — `chromapulse_remove_ads`, `chromapulse_vip_pass` |
 | Targeted at children under 13 | **No** |
 
 Expected rating: **4+ / Everyone / PEGI 3**.

@@ -34,7 +34,7 @@ Apple side. Required before Codemagic's first iOS build can push to TestFlight.
    SKU `chromapulse-ios-001`.
 3. Fill Name / Subtitle / Promo / Keywords / Description from
    [store_assets/LISTING_COPY.md](store_assets/LISTING_COPY.md) — **Save as draft**.
-4. Add 2 IAPs (`remove_ads` $1.99, `vip_pass` $4.99) — non-consumable —
+4. Add 2 IAPs (`chromapulse_remove_ads` $1.99, `chromapulse_vip_pass` $4.99) — non-consumable —
    using copy from the same file.
 5. Confirm **Paid Apps Agreement = Active** in Agreements, Tax, Banking.
 6. Skip "Submit for Review" for now.
@@ -47,7 +47,7 @@ Apple side. Required before Codemagic's first iOS build can push to TestFlight.
    `ChromaPulse: Color Eye Test`, lang en-US, Game, Free.
 2. Fill Store listing + App content declarations using
    [LISTING_COPY.md](store_assets/LISTING_COPY.md).
-3. Create both IAPs (`remove_ads` $1.99, `vip_pass` $4.99) under **Monetize →
+3. Create both IAPs (`chromapulse_remove_ads` $1.99, `chromapulse_vip_pass` $4.99) under **Monetize →
    Products → In-app products**.
 4. **Build first AAB and upload manually** — Google requires this before the
    API can publish:

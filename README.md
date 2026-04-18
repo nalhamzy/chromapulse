@@ -66,8 +66,8 @@ See [RELEASE.md](RELEASE.md) for the full App Store Connect + Google Play Consol
 
 - **Default AdMob unit IDs are Google's public test IDs** — safe for development, **must** be replaced before production release. See [lib/core/constants/ad_ids.dart](lib/core/constants/ad_ids.dart).
 - **IAP products (both non-consumable):**
-  - `remove_ads` → hides banner + interstitial
-  - `vip_pass` → removes ads + future bonus content flag
+  - `chromapulse_remove_ads` → hides banner + interstitial
+  - `chromapulse_vip_pass` → removes ads + future bonus content flag
 - No consumable coin economy. No ads during gameplay (banner hides on `AppScreen.game`).
 
 ## License

@@ -129,8 +129,8 @@ Create both as **Non-Consumable**:
 
 | Product ID | Reference Name | Price Tier | Display Name | Description |
 |---|---|---|---|---|
-| `remove_ads` | Remove Ads | Tier 2 ($1.99) | Remove Ads | Hide banner and interstitial ads forever. Keep supporting ChromaPulse! |
-| `vip_pass` | VIP Pass | Tier 5 ($4.99) | VIP Pass | Removes all ads and unlocks future bonus content. The ultimate ChromaPulse experience. |
+| `chromapulse_remove_ads` | Remove Ads | Tier 2 ($1.99) | Remove Ads | Hide banner and interstitial ads forever. Keep supporting ChromaPulse! |
+| `chromapulse_vip_pass` | VIP Pass | Tier 5 ($4.99) | VIP Pass | Removes all ads and unlocks future bonus content. The ultimate ChromaPulse experience. |
 
 For each IAP:
 - **Localization**: at least English (U.S.) with Display Name + Description above
@@ -188,7 +188,7 @@ On the `1.0.0` version page, fill in:
 - **Demo Account** — leave blank (app has no login)
 
 **App Review Information — Notes** (paste):
-> ChromaPulse has no account, login, or server backend. All stats are stored locally via SharedPreferences. IAPs are two non-consumables (remove_ads, vip_pass). Sandbox purchases can be verified with any tester account. Ads use AdMob.
+> ChromaPulse has no account, login, or server backend. All stats are stored locally via SharedPreferences. IAPs are two non-consumables (chromapulse_remove_ads, chromapulse_vip_pass). Sandbox purchases can be verified with any tester account. Ads use AdMob.
 
 ### Step 2.8 — App Store Connect API Key for Codemagic
 **Users and Access** → **Keys** → **+** → App Store Connect API
@@ -283,8 +283,8 @@ For EACH product:
 
 | Product ID (exact match!) | Name | Description | Default price |
 |---|---|---|---|
-| `remove_ads` | Remove Ads | Hide banner and interstitial ads forever. Support ChromaPulse development! | $1.99 USD |
-| `vip_pass` | VIP Pass | Removes all ads and unlocks future bonus content. The ultimate ChromaPulse experience. | $4.99 USD |
+| `chromapulse_remove_ads` | Remove Ads | Hide banner and interstitial ads forever. Support ChromaPulse development! | $1.99 USD |
+| `chromapulse_vip_pass` | VIP Pass | Removes all ads and unlocks future bonus content. The ultimate ChromaPulse experience. | $4.99 USD |
 
 Both must be **Active** state.
 
@@ -408,7 +408,7 @@ Use these answers consistently across App Store Connect and Google Play:
 | Loot boxes / randomized purchases | No |
 | Purchase of physical goods | No |
 | Shares user location | No |
-| Digital purchases (IAPs) | Yes — remove_ads, vip_pass |
+| Digital purchases (IAPs) | Yes — chromapulse_remove_ads, chromapulse_vip_pass |
 | Targeted at children under 13 | **No** |
 
 **Expected rating outcomes:**
@@ -502,7 +502,7 @@ Host this at e.g. `https://nalhamzy.github.io/chromapulse/privacy.html` and use 
 - [ ] App Icon uploaded (1024×1024)
 - [ ] 3+ iPhone 6.9" screenshots uploaded
 - [ ] 3+ iPad 13" screenshots uploaded (showing iPad layout, not phone-column)
-- [ ] Both IAPs (`remove_ads`, `vip_pass`) configured and in "Ready to Submit"
+- [ ] Both IAPs (`chromapulse_remove_ads`, `chromapulse_vip_pass`) configured and in "Ready to Submit"
 - [ ] IAP review screenshots uploaded
 - [ ] IAPs attached to the version under review
 - [ ] Paid Apps Agreement = Active

@@ -4,8 +4,10 @@
 class IapProductIds {
   IapProductIds._();
 
-  static const removeAds = 'remove_ads';
-  static const vipPass = 'vip_pass';
+  // Namespaced because ASC product IDs are globally unique per Apple team.
+  // Color Chaos already claims `remove_ads` / `vip_pass` in the Ideal AI team.
+  static const removeAds = 'chromapulse_remove_ads';
+  static const vipPass = 'chromapulse_vip_pass';
 
   static const all = {removeAds, vipPass};
 }
