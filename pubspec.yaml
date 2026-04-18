@@ -22,6 +22,7 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.1
+  flutter_native_splash: ^2.4.6
 
 flutter_launcher_icons:
   android: true
@@ -30,7 +31,19 @@ flutter_launcher_icons:
   remove_alpha_ios: true
   background_color_ios: "#0A0A0F"
 
+flutter_native_splash:
+  # Matches ChromaPulse brand: dark near-black background, centered icon.
+  color: "#0A0A0F"
+  image: "assets/icon/icon_source.png"
+  android_12:
+    color: "#0A0A0F"
+    image: "assets/icon/icon_source.png"
+    icon_background_color: "#0A0A0F"
+  ios_content_mode: center
+  fullscreen: true
+
 flutter:
   uses-material-design: true
   assets:
     - assets/sounds/
+    - assets/icon/

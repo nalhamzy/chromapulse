@@ -19,12 +19,12 @@ class AdIds {
   static const _testRewardedIos         = 'ca-app-pub-3940256099942544/1712485313';
 
   // TODO(chromapulse): replace with real unit IDs before shipping to production.
-  static const _prodBannerAndroid       = _testBannerAndroid;
-  static const _prodBannerIos           = _testBannerIos;
-  static const _prodInterstitialAndroid = _testInterstitialAndroid;
-  static const _prodInterstitialIos     = _testInterstitialIos;
-  static const _prodRewardedAndroid     = _testRewardedAndroid;
-  static const _prodRewardedIos         = _testRewardedIos;
+  static const _prodBannerAndroid       = 'ca-app-pub-4401199263287951/4525098783';
+  static const _prodBannerIos           = 'ca-app-pub-4401199263287951/1637091897';
+  static const _prodInterstitialAndroid = 'ca-app-pub-4401199263287951/7929991323';
+  static const _prodInterstitialIos     = 'ca-app-pub-4401199263287951/4079422403';
+  static const _prodRewardedAndroid     = 'ca-app-pub-4401199263287951/6921208163';
+  static const _prodRewardedIos         = 'ca-app-pub-4401199263287951/8177403334';
 
   static String get bannerAdUnitId {
     if (kDebugMode) {

@@ -135,27 +135,48 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(height: context.s(32)),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  SizedBox(height: context.s(28)),
+                  // Primary action — full-width "PLAY AGAIN"
+                  SizedBox(
+                    width: double.infinity,
+                    child: GradientButton(
+                      text: 'PLAY AGAIN',
+                      width: double.infinity,
+                      gradient: AppTheme.logoGradient1,
+                      textColor: Colors.black,
+                      onPressed: () {
+                        ref.read(audioServiceProvider).play(SoundEffect.buttonTap);
+                        ref.read(gameProvider.notifier).startGame(g.mode);
+                        ref.read(screenProvider.notifier).go(AppScreen.game);
+                      },
+                    ),
+                  ),
+                  SizedBox(height: context.s(12)),
+                  // Secondary actions — Wrap so they never overflow on narrow phones.
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: context.s(10),
+                    runSpacing: context.s(8),
                     children: [
                       _SecondaryButton(
-                        text: 'MENU',
+                        text: 'Change Mode',
+                        icon: Icons.grid_view_rounded,
                         onTap: () {
                           ref.read(audioServiceProvider).play(SoundEffect.buttonTap);
                           ref.read(screenProvider.notifier).go(AppScreen.menu);
                         },
                       ),
-                      SizedBox(width: context.s(12)),
-                      GradientButton(
-                        text: 'Play Again',
-                        width: 160,
-                        gradient: AppTheme.logoGradient1,
-                        textColor: Colors.black,
-                        onPressed: () {
+                      _SecondaryButton(
+                        text: 'Share Score',
+                        icon: Icons.ios_share_rounded,
+                        onTap: () {
                           ref.read(audioServiceProvider).play(SoundEffect.buttonTap);
-                          ref.read(gameProvider.notifier).startGame(g.mode);
-                          ref.read(screenProvider.notifier).go(AppScreen.game);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Score ${g.score} — ${g.mode.label}'),
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
                         },
                       ),
                     ],
@@ -172,9 +193,10 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
 
 class _SecondaryButton extends StatelessWidget {
   final String text;
+  final IconData? icon;
   final VoidCallback onTap;
 
-  const _SecondaryButton({required this.text, required this.onTap});
+  const _SecondaryButton({required this.text, required this.onTap, this.icon});
 
   @override
   Widget build(BuildContext context) {
@@ -182,22 +204,30 @@ class _SecondaryButton extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(context.s(12)),
       child: Container(
-        width: context.s(140),
-        padding: EdgeInsets.symmetric(vertical: context.s(14)),
+        padding: EdgeInsets.symmetric(
+            horizontal: context.s(18), vertical: context.s(12)),
         decoration: BoxDecoration(
           color: AppColors.surface2,
           borderRadius: BorderRadius.circular(context.s(12)),
           border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
         ),
-        alignment: Alignment.center,
-        child: Text(
-          text,
-          style: TextStyle(
-            color: AppColors.text,
-            fontSize: context.s(14),
-            fontWeight: FontWeight.w700,
-            letterSpacing: 1,
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, color: AppColors.text, size: context.s(16)),
+              SizedBox(width: context.s(6)),
+            ],
+            Text(
+              text,
+              style: TextStyle(
+                color: AppColors.text,
+                fontSize: context.s(13),
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ],
         ),
       ),
     );
