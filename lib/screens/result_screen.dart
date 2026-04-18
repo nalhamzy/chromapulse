@@ -4,9 +4,11 @@ import 'package:chromapulse/core/constants/app_colors.dart';
 import 'package:chromapulse/core/constants/theme.dart';
 import 'package:chromapulse/core/services/audio_service.dart';
 import 'package:chromapulse/core/utils/responsive.dart';
+import 'package:chromapulse/providers/ad_provider.dart';
 import 'package:chromapulse/providers/audio_provider.dart';
 import 'package:chromapulse/providers/game_provider.dart';
 import 'package:chromapulse/providers/navigation_provider.dart';
+import 'package:chromapulse/providers/player_provider.dart';
 import 'package:chromapulse/widgets/common/gradient_button.dart';
 import 'package:chromapulse/widgets/game/result_stat_block.dart';
 
@@ -135,7 +137,15 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(height: context.s(28)),
+                  SizedBox(height: context.s(20)),
+                  // Rewarded-ad "2× SCORE" — shown once per run, only for
+                  // non-premium players while an ad is loaded. Silent no-op
+                  // otherwise so it doesn't clutter the result screen.
+                  if (_shouldShowDoubleScore(ref, g))
+                    Padding(
+                      padding: EdgeInsets.only(bottom: context.s(12)),
+                      child: _DoubleScoreButton(),
+                    ),
                   // Primary action — full-width "PLAY AGAIN"
                   SizedBox(
                     width: double.infinity,
@@ -185,6 +195,94 @@ class _ResultScreenState extends ConsumerState<ResultScreen> {
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+bool _shouldShowDoubleScore(WidgetRef ref, dynamic g) {
+  if (g.score <= 0) return false;
+  if (g.scoreDoubled) return false;
+  if (ref.read(playerProvider).adsRemoved) return false;
+  return ref.read(adServiceProvider).hasRewardedAd;
+}
+
+class _DoubleScoreButton extends ConsumerStatefulWidget {
+  @override
+  ConsumerState<_DoubleScoreButton> createState() =>
+      _DoubleScoreButtonState();
+}
+
+class _DoubleScoreButtonState extends ConsumerState<_DoubleScoreButton> {
+  bool _busy = false;
+
+  Future<void> _claim() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    ref.read(audioServiceProvider).play(SoundEffect.buttonTap);
+    final ads = ref.read(adServiceProvider);
+    await ads.showRewardedAd(
+      onRewarded: () {
+        ref.read(gameProvider.notifier).applyScoreDouble();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Score doubled! 🎉'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+      },
+      onUnavailable: () {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Ad not ready. Try again in a moment.'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+      },
+    );
+    if (mounted) setState(() => _busy = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: _busy ? null : _claim,
+      borderRadius: BorderRadius.circular(context.s(14)),
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(vertical: context.s(14)),
+        decoration: BoxDecoration(
+          gradient: AppTheme.goldGradient,
+          borderRadius: BorderRadius.circular(context.s(14)),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.gold.withValues(alpha: 0.25),
+              blurRadius: 14,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.play_circle_fill_rounded,
+                color: Colors.black, size: context.s(22)),
+            SizedBox(width: context.s(8)),
+            Text(
+              _busy ? 'LOADING…' : 'WATCH AD — DOUBLE SCORE',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: context.s(14),
+                fontWeight: FontWeight.w900,
+                letterSpacing: 1.2,
+              ),
+            ),
+          ],
         ),
       ),
     );

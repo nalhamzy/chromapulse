@@ -31,6 +31,24 @@ class PlayerNotifier extends Notifier<PlayerStats> {
     _save();
   }
 
+  /// Apply a post-game bonus score (from a rewarded "2x score" ad).
+  /// Bumps totalScore and updates the best for the mode if the new total wins.
+  void recordBonusScore({
+    required String modeId,
+    required int totalScore,
+    required int bonusPoints,
+  }) {
+    final prevBest = state.bestFor(modeId);
+    final newBest = totalScore > prevBest ? totalScore : prevBest;
+    final updatedBest = Map<String, int>.from(state.bestByMode)
+      ..[modeId] = newBest;
+    state = state.copyWith(
+      totalScore: state.totalScore + bonusPoints,
+      bestByMode: updatedBest,
+    );
+    _save();
+  }
+
   void activateRemoveAds() {
     if (state.adsRemoved) return;
     state = state.copyWith(adsRemoved: true);

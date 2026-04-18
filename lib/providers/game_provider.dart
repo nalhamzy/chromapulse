@@ -36,6 +36,20 @@ class GameNotifier extends Notifier<GameState> {
     _beginNextRound();
   }
 
+  /// Rewarded-ad reward: doubles the final score once per run. Only callable
+  /// while the game is finished. Persists the bonus points to player best.
+  void applyScoreDouble() {
+    if (state.phase != GamePhase.finished) return;
+    if (state.scoreDoubled) return;
+    final bonus = state.score; // doubling = adding the same amount again
+    state = state.copyWith(score: state.score + bonus, scoreDoubled: true);
+    ref.read(playerProvider.notifier).recordBonusScore(
+          modeId: state.mode.id,
+          totalScore: state.score,
+          bonusPoints: bonus,
+        );
+  }
+
   void retry() {
     if (state.mode == GameMode.shadeHunter &&
         state.phase == GamePhase.idle &&

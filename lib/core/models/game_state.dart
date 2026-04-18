@@ -46,6 +46,9 @@ class GameState extends Equatable {
   // Snapshot of best for current mode at game start (for new-best detection on result screen)
   final int previousBestForMode;
 
+  // True once the player has burned their rewarded-ad "2x score" claim for this run.
+  final bool scoreDoubled;
+
   const GameState({
     this.mode = GameMode.shadeHunter,
     this.phase = GamePhase.idle,
@@ -75,6 +78,7 @@ class GameState extends Equatable {
     this.pointsSignal = 0,
     this.lastPoints = 0,
     this.previousBestForMode = 0,
+    this.scoreDoubled = false,
   });
 
   double get timeFraction =>
@@ -113,6 +117,7 @@ class GameState extends Equatable {
     int? pointsSignal,
     int? lastPoints,
     int? previousBestForMode,
+    bool? scoreDoubled,
   }) =>
       GameState(
         mode: mode ?? this.mode,
@@ -146,6 +151,7 @@ class GameState extends Equatable {
         pointsSignal: pointsSignal ?? this.pointsSignal,
         lastPoints: lastPoints ?? this.lastPoints,
         previousBestForMode: previousBestForMode ?? this.previousBestForMode,
+        scoreDoubled: scoreDoubled ?? this.scoreDoubled,
       );
 
   @override
@@ -178,5 +184,6 @@ class GameState extends Equatable {
         pointsSignal,
         lastPoints,
         previousBestForMode,
+        scoreDoubled,
       ];
 }
