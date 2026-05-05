@@ -1,6 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-enum AppScreen { menu, game, result, shop }
+enum AppScreen {
+  menu,
+  game,
+  result,
+  shop,
+  stats,
+  achievements,
+  settings,
+}
 
 class ScreenNotifier extends Notifier<AppScreen> {
   @override

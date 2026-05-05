@@ -9,10 +9,13 @@ import 'package:chromapulse/providers/game_provider.dart';
 import 'package:chromapulse/providers/iap_provider.dart';
 import 'package:chromapulse/providers/navigation_provider.dart';
 import 'package:chromapulse/providers/player_provider.dart';
+import 'package:chromapulse/screens/achievements_screen.dart';
 import 'package:chromapulse/screens/game_screen.dart';
 import 'package:chromapulse/screens/menu_screen.dart';
 import 'package:chromapulse/screens/result_screen.dart';
+import 'package:chromapulse/screens/settings_screen.dart';
 import 'package:chromapulse/screens/shop_screen.dart';
+import 'package:chromapulse/screens/stats_screen.dart';
 import 'package:chromapulse/widgets/common/ad_banner_widget.dart';
 
 class ChromaPulseApp extends StatelessWidget {
@@ -58,8 +61,14 @@ class _AppShellState extends ConsumerState<_AppShell> {
   @override
   Widget build(BuildContext context) {
     // Listen for game end → optional interstitial → navigate to result.
+    //
+    // The real phase path is `playing → resolved → finished` (via the 1s
+    // _scheduleNextRound timer that triggers _endGame), so the previous
+    // `prev == playing && next == finished` check NEVER matched and players
+    // were left stuck on the final round's resolved grid. Match on `next`
+    // alone — phase=finished is a terminal state, so we won't double-fire.
     ref.listen(gameProvider.select((g) => g.phase), (prev, next) {
-      if (prev == GamePhase.playing && next == GamePhase.finished) {
+      if (next == GamePhase.finished && prev != GamePhase.finished) {
         final ads = ref.read(adServiceProvider);
         final player = ref.read(playerProvider);
         if (player.adsRemoved) {
@@ -106,6 +115,12 @@ class _AppShellState extends ConsumerState<_AppShell> {
         return const ResultScreen();
       case AppScreen.shop:
         return const ShopScreen();
+      case AppScreen.stats:
+        return const StatsScreen();
+      case AppScreen.achievements:
+        return const AchievementsScreen();
+      case AppScreen.settings:
+        return const SettingsScreen();
     }
   }
 }

@@ -44,6 +44,18 @@ enum GameMode {
     totalRounds: 8,
     defaultTimeLimitMs: 12000,
     hasGrid: false,
+  ),
+  paletteMatch(
+    id: 'palette',
+    label: 'Palette Match',
+    iconGlyph: '◇',
+    description:
+        'VIP — Recreate a 4-swatch palette from a noisy 9-tile grid before time runs out.',
+    accent: AppColors.silver,
+    totalRounds: 8,
+    defaultTimeLimitMs: 12000,
+    hasGrid: false,
+    vipOnly: true,
   );
 
   final String id;
@@ -54,6 +66,7 @@ enum GameMode {
   final int totalRounds;
   final int defaultTimeLimitMs;
   final bool hasGrid;
+  final bool vipOnly;
 
   const GameMode({
     required this.id,
@@ -64,6 +77,7 @@ enum GameMode {
     required this.totalRounds,
     required this.defaultTimeLimitMs,
     required this.hasGrid,
+    this.vipOnly = false,
   });
 
   static GameMode? byId(String id) {

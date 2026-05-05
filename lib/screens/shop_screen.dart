@@ -48,7 +48,7 @@ class ShopScreen extends ConsumerWidget {
                         icon: '👑',
                         name: 'VIP Pass',
                         description:
-                            'Removes ads and unlocks future bonus content.',
+                            'Removes ads and unlocks the Palette Match game mode.',
                         productId: IapProductIds.vipPass,
                         owned: player.vip,
                         fallbackPrice: '\$4.99',

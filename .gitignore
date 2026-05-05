@@ -53,3 +53,6 @@ app.*.map.json
 # Flutter generated
 .flutter-plugins
 .flutter-plugins-dependencies
+
+# Claude Code local config
+.claude/

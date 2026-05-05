@@ -8,6 +8,11 @@ import 'package:chromapulse/core/utils/responsive.dart';
 class ModeCard extends StatefulWidget {
   final GameMode mode;
   final int bestScore;
+
+  /// True for VIP-only modes the player hasn't unlocked. The card still
+  /// renders but with a lock badge; tapping will route to the Shop instead
+  /// of starting the game (handled by [onTap]).
+  final bool locked;
   final VoidCallback onTap;
 
   const ModeCard({
@@ -15,6 +20,7 @@ class ModeCard extends StatefulWidget {
     required this.mode,
     required this.bestScore,
     required this.onTap,
+    this.locked = false,
   });
 
   @override
@@ -51,7 +57,9 @@ class _ModeCardState extends State<ModeCard> {
             ),
             borderRadius: BorderRadius.circular(context.s(16)),
             border: Border.all(
-              color: Colors.white.withValues(alpha: 0.05),
+              color: widget.locked
+                  ? AppColors.gold.withValues(alpha: 0.35)
+                  : Colors.white.withValues(alpha: 0.05),
             ),
           ),
           child: Column(
@@ -76,14 +84,44 @@ class _ModeCardState extends State<ModeCard> {
                     ),
                   ),
                   SizedBox(width: context.s(12)),
-                  Text(
-                    widget.mode.label,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: context.s(16),
-                      color: AppColors.text,
+                  Expanded(
+                    child: Text(
+                      widget.mode.label,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: context.s(16),
+                        color: AppColors.text,
+                      ),
                     ),
                   ),
+                  if (widget.locked)
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: context.s(8),
+                        vertical: context.s(4),
+                      ),
+                      decoration: BoxDecoration(
+                        gradient: AppTheme.goldGradient,
+                        borderRadius: BorderRadius.circular(context.s(8)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.lock_rounded,
+                              size: context.s(12), color: Colors.black),
+                          SizedBox(width: context.s(4)),
+                          Text(
+                            'VIP',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: context.s(10),
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 1.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                 ],
               ),
               SizedBox(height: context.s(8)),

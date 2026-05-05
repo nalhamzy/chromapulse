@@ -10,7 +10,7 @@ import 'package:chromapulse/core/utils/color_utils.dart';
 import 'package:chromapulse/providers/player_provider.dart';
 
 class GameNotifier extends Notifier<GameState> {
-  final _rng = math.Random();
+  math.Random _rng = math.Random();
   Timer? _ticker;
   Timer? _memoryTimer;
   Timer? _resolveTimer;
@@ -24,14 +24,19 @@ class GameNotifier extends Notifier<GameState> {
 
   // ── Public API ───────────────────────────────────────────────────────────
 
-  void startGame(GameMode mode) {
+  /// Start a new game in [mode]. When [dailySeed] is provided, the round
+  /// generator is seeded so every player gets the same layout for that day.
+  void startGame(GameMode mode, {int? dailySeed}) {
     _cancelAll();
+    _rng = dailySeed != null ? math.Random(dailySeed) : math.Random();
     final previousBest = ref.read(playerProvider).bestFor(mode.id);
     state = GameState(
       mode: mode,
       totalRounds: mode.totalRounds,
       phase: GamePhase.idle,
       previousBestForMode: previousBest,
+      isDailyChallenge: dailySeed != null,
+      dailySeed: dailySeed ?? 0,
     );
     _beginNextRound();
   }
@@ -67,6 +72,10 @@ class GameNotifier extends Notifier<GameState> {
   void handlePick(int index) {
     if (state.phase != GamePhase.playing) return;
     if (state.mode == GameMode.colorAlchemist) return;
+    if (state.mode == GameMode.paletteMatch) {
+      _handlePalettePick(index);
+      return;
+    }
     _ticker?.cancel();
     final elapsed = _nowMs() - _roundStartMs;
     _applyPerceptionResult(
@@ -118,6 +127,8 @@ class GameNotifier extends Notifier<GameState> {
       blendG: 128,
       blendB: 128,
       lastAccuracyPct: () => null,
+      paletteTargets: cfg.paletteTargets,
+      palettePicks: const [],
     );
     if (state.mode == GameMode.chromaRecall) {
       _startMemoryPhase(cfg);
@@ -280,6 +291,80 @@ class GameNotifier extends Notifier<GameState> {
     _scheduleNextRound(const Duration(milliseconds: 1200));
   }
 
+  // ── Palette Match (VIP) ──────────────────────────────────────────────────
+
+  void _handlePalettePick(int index) {
+    // Already picked → toggle off.
+    if (state.palettePicks.contains(index)) {
+      final next = state.palettePicks.where((i) => i != index).toList();
+      state = state.copyWith(palettePicks: next);
+      return;
+    }
+    if (index < 0 || index >= state.cells.length) return;
+
+    final cellColor = state.cells[index];
+    final isTarget = state.paletteTargets.contains(cellColor);
+
+    if (!isTarget) {
+      // Wrong tile → round fail (combo reset, miss).
+      _ticker?.cancel();
+      final elapsed = _nowMs() - _roundStartMs;
+      final times = [...state.roundTimesMs, elapsed];
+      state = state.copyWith(
+        phase: GamePhase.resolved,
+        elapsedMs: elapsed,
+        combo: 0,
+        pickedIndex: () => index,
+        roundTimesMs: times,
+        feedbackSignal: state.feedbackSignal + 1,
+        lastFeedback: () => FeedbackKind.miss,
+        pointsSignal: state.pointsSignal + 1,
+        lastPoints: 0,
+      );
+      _scheduleNextRound(const Duration(milliseconds: 1000));
+      return;
+    }
+
+    // Correct tile — accumulate.
+    final picks = [...state.palettePicks, index];
+    if (picks.length < state.paletteTargets.length) {
+      state = state.copyWith(palettePicks: picks);
+      return;
+    }
+    // All targets found — score the round.
+    _ticker?.cancel();
+    final elapsed = _nowMs() - _roundStartMs;
+    final timeBonus = math.max(0.0, 1 - elapsed / state.timeLimitMs);
+    final newCombo = state.combo + 1;
+    final maxCombo =
+        newCombo > state.maxCombo ? newCombo : state.maxCombo;
+    final comboMult = 1 + (newCombo - 1) * 0.25;
+    final points = ((100 + timeBonus * 50) * comboMult).round();
+    final feedback = timeBonus > 0.6
+        ? FeedbackKind.perfect
+        : timeBonus > 0.3
+            ? FeedbackKind.great
+            : FeedbackKind.good;
+    final times = [...state.roundTimesMs, elapsed];
+    state = state.copyWith(
+      phase: GamePhase.resolved,
+      elapsedMs: elapsed,
+      combo: newCombo,
+      maxCombo: maxCombo,
+      correct: state.correct + 1,
+      score: state.score + points,
+      palettePicks: picks,
+      roundTimesMs: times,
+      feedbackSignal: state.feedbackSignal + 1,
+      lastFeedback: () => feedback,
+      pointsSignal: state.pointsSignal + 1,
+      lastPoints: points,
+    );
+    _scheduleNextRound(const Duration(milliseconds: 1000));
+  }
+
+  // ── Round dispatch ───────────────────────────────────────────────────────
+
   void _scheduleNextRound(Duration after) {
     _resolveTimer?.cancel();
     _resolveTimer = Timer(after, _beginNextRound);
@@ -288,12 +373,7 @@ class GameNotifier extends Notifier<GameState> {
   void _endGame() {
     _cancelAll();
     state = state.copyWith(phase: GamePhase.finished);
-    ref.read(playerProvider.notifier).recordGameEnd(
-          modeId: state.mode.id,
-          score: state.score,
-          correct: state.correct,
-          totalRounds: state.totalRounds,
-        );
+    ref.read(playerProvider.notifier).recordGameEnd(state);
   }
 
   void _cancelAll() {
@@ -303,8 +383,6 @@ class GameNotifier extends Notifier<GameState> {
   }
 
   int _nowMs() => DateTime.now().millisecondsSinceEpoch;
-
-  // ── Round builders (dispatch) ────────────────────────────────────────────
 
   RoundConfig _buildRound(GameMode mode, int diff) {
     switch (mode) {
@@ -316,6 +394,8 @@ class GameNotifier extends Notifier<GameState> {
         return _buildRecallRound(diff, _rng);
       case GameMode.colorAlchemist:
         return _buildAlchemistRound(diff, _rng);
+      case GameMode.paletteMatch:
+        return _buildPaletteRound(diff, _rng);
     }
   }
 }
@@ -434,6 +514,52 @@ RoundConfig _buildAlchemistRound(int diff, math.Random rng) {
     instruction: 'Mix the exact color using RGB sliders',
     timeLimitMs: math.max(5000, 12000 - diff * 500),
     blendTarget: target,
+  );
+}
+
+/// Palette Match (VIP) — generate 4 distinct target swatches and 5 distractor
+/// swatches. Player must tap all 4 target tiles in the noise grid before time
+/// expires; tapping a distractor fails the round immediately. Difficulty
+/// tightens by reducing hue separation between targets and distractors.
+RoundConfig _buildPaletteRound(int diff, math.Random rng) {
+  final hueRoot = randDouble(rng, 0, 360);
+  final sat = randDouble(rng, 55, 80);
+  final light = randDouble(rng, 40, 60);
+
+  // Pick 4 widely-spaced base hues for the targets (so they are visually
+  // distinct from each other) and rotate them around hueRoot.
+  final targetHues = <double>[
+    (hueRoot + 0) % 360,
+    (hueRoot + 90 + randDouble(rng, -10, 10)) % 360,
+    (hueRoot + 180 + randDouble(rng, -10, 10)) % 360,
+    (hueRoot + 270 + randDouble(rng, -10, 10)) % 360,
+  ];
+  final targets = targetHues
+      .map((h) => hslToRgb((h + 360) % 360, sat, light))
+      .toList();
+
+  // Distractors are perturbations of the targets — closer perturbation =
+  // harder. diff goes 1..8 (totalRounds). Range shrinks with difficulty.
+  final perturb = math.max(8.0, 40 - diff * 4.0);
+  final distractors = List<Color>.generate(5, (i) {
+    final baseHue = targetHues[i % 4];
+    final h = (baseHue + (rng.nextDouble() * 2 - 1) * perturb + 360) % 360;
+    final s = (sat + (rng.nextDouble() * 2 - 1) * 8).clamp(20.0, 95.0);
+    final l = (light + (rng.nextDouble() * 2 - 1) * 8).clamp(15.0, 85.0);
+    return hslToRgb(h, s, l);
+  });
+
+  // Build the 9-tile grid: targets + distractors, shuffled.
+  final cells = <Color>[...targets, ...distractors];
+  shuffleInPlace(cells, rng);
+
+  return RoundConfig(
+    cells: cells,
+    targetIndex: -1,
+    gridColumns: 3,
+    instruction: 'Tap the 4 colors that match the palette',
+    timeLimitMs: math.max(7000, 12000 - diff * 500),
+    paletteTargets: targets,
   );
 }
 

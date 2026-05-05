@@ -37,6 +37,12 @@ class GameState extends Equatable {
   final int blendB;
   final int? lastAccuracyPct;
 
+  // Palette Match (VIP) — 4 target swatches the player must reconstruct from
+  // a 9-tile noise grid. [palettePicks] holds the option-grid indices the
+  // player has tapped this round; tapping again unselects.
+  final List<Color> paletteTargets;
+  final List<int> palettePicks;
+
   // Transient signal flags (bumped by a counter so listeners fire every time)
   final int feedbackSignal;
   final FeedbackKind? lastFeedback;
@@ -48,6 +54,10 @@ class GameState extends Equatable {
 
   // True once the player has burned their rewarded-ad "2x score" claim for this run.
   final bool scoreDoubled;
+
+  // Daily Challenge run flag + the date seed used (YYYYMMDD).
+  final bool isDailyChallenge;
+  final int dailySeed;
 
   const GameState({
     this.mode = GameMode.shadeHunter,
@@ -73,12 +83,16 @@ class GameState extends Equatable {
     this.blendG = 128,
     this.blendB = 128,
     this.lastAccuracyPct,
+    this.paletteTargets = const [],
+    this.palettePicks = const [],
     this.feedbackSignal = 0,
     this.lastFeedback,
     this.pointsSignal = 0,
     this.lastPoints = 0,
     this.previousBestForMode = 0,
     this.scoreDoubled = false,
+    this.isDailyChallenge = false,
+    this.dailySeed = 0,
   });
 
   double get timeFraction =>
@@ -112,12 +126,16 @@ class GameState extends Equatable {
     int? blendG,
     int? blendB,
     int? Function()? lastAccuracyPct,
+    List<Color>? paletteTargets,
+    List<int>? palettePicks,
     int? feedbackSignal,
     FeedbackKind? Function()? lastFeedback,
     int? pointsSignal,
     int? lastPoints,
     int? previousBestForMode,
     bool? scoreDoubled,
+    bool? isDailyChallenge,
+    int? dailySeed,
   }) =>
       GameState(
         mode: mode ?? this.mode,
@@ -146,12 +164,16 @@ class GameState extends Equatable {
         blendB: blendB ?? this.blendB,
         lastAccuracyPct:
             lastAccuracyPct != null ? lastAccuracyPct() : this.lastAccuracyPct,
+        paletteTargets: paletteTargets ?? this.paletteTargets,
+        palettePicks: palettePicks ?? this.palettePicks,
         feedbackSignal: feedbackSignal ?? this.feedbackSignal,
         lastFeedback: lastFeedback != null ? lastFeedback() : this.lastFeedback,
         pointsSignal: pointsSignal ?? this.pointsSignal,
         lastPoints: lastPoints ?? this.lastPoints,
         previousBestForMode: previousBestForMode ?? this.previousBestForMode,
         scoreDoubled: scoreDoubled ?? this.scoreDoubled,
+        isDailyChallenge: isDailyChallenge ?? this.isDailyChallenge,
+        dailySeed: dailySeed ?? this.dailySeed,
       );
 
   @override
@@ -179,11 +201,15 @@ class GameState extends Equatable {
         blendG,
         blendB,
         lastAccuracyPct,
+        paletteTargets,
+        palettePicks,
         feedbackSignal,
         lastFeedback,
         pointsSignal,
         lastPoints,
         previousBestForMode,
         scoreDoubled,
+        isDailyChallenge,
+        dailySeed,
       ];
 }

@@ -91,21 +91,50 @@ class AdService {
       return;
     }
     _lastInterstitialAt = DateTime.now();
+
+    // Single-fire guard — guarantees the result screen navigation runs
+    // exactly once even if both the dismiss and failure callbacks arrive
+    // (or the watchdog beats them to it).
+    bool resolved = false;
+    Timer? watchdog;
+    void resolveOnce() {
+      if (resolved) return;
+      resolved = true;
+      watchdog?.cancel();
+      onDismissed?.call();
+    }
+
     _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
       onAdDismissedFullScreenContent: (ad) {
         ad.dispose();
         _interstitialAd = null;
         _loadInterstitial();
-        onDismissed?.call();
+        resolveOnce();
       },
       onAdFailedToShowFullScreenContent: (ad, _) {
         ad.dispose();
         _interstitialAd = null;
         _loadInterstitial();
-        onDismissed?.call();
+        resolveOnce();
       },
     );
-    await _interstitialAd!.show();
+
+    // Safety watchdog — interstitials are normally 5–30 s and have a close
+    // button enforced by AdMob policy. If neither dismiss nor failure
+    // callback fires within 90 s (bad network, SDK bug, misbehaving
+    // creative), force-progress so the player is never stranded behind a
+    // stuck ad. The ad object itself survives — when the user finally taps
+    // X the SDK callback fires, [resolveOnce] is a no-op, and the ad is
+    // disposed normally.
+    watchdog = Timer(const Duration(seconds: 90), resolveOnce);
+
+    try {
+      await _interstitialAd!.show();
+    } catch (_) {
+      // .show() can throw if the ad object is already disposed. Recover by
+      // routing through the same single-fire path so we never hang.
+      resolveOnce();
+    }
   }
 
   // ── Rewarded ──────────────────────────────────────────────────────────

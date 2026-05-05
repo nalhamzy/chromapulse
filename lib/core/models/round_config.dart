@@ -10,6 +10,7 @@ class RoundConfig {
   final Color? memoryTarget;      // recall phase only
   final int memoryShowMs;         // recall only
   final Color? blendTarget;       // alchemist only
+  final List<Color> paletteTargets; // palette-match only — 4 swatches
 
   const RoundConfig({
     this.cells = const [],
@@ -20,5 +21,6 @@ class RoundConfig {
     this.memoryTarget,
     this.memoryShowMs = 0,
     this.blendTarget,
+    this.paletteTargets = const [],
   });
 }

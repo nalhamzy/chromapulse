@@ -8,12 +8,14 @@ import 'package:chromapulse/core/services/audio_service.dart';
 import 'package:chromapulse/core/utils/responsive.dart';
 import 'package:chromapulse/providers/audio_provider.dart';
 import 'package:chromapulse/providers/game_provider.dart';
+import 'package:chromapulse/providers/haptic_provider.dart';
 import 'package:chromapulse/providers/navigation_provider.dart';
 import 'package:chromapulse/widgets/game/blend_area.dart';
 import 'package:chromapulse/widgets/game/color_grid.dart';
 import 'package:chromapulse/widgets/game/feedback_toast.dart';
 import 'package:chromapulse/widgets/game/game_info_bar.dart';
 import 'package:chromapulse/widgets/game/memory_flash.dart';
+import 'package:chromapulse/widgets/game/palette_match_area.dart';
 import 'package:chromapulse/widgets/game/points_popup.dart';
 import 'package:chromapulse/widgets/game/timer_bar.dart';
 
@@ -29,18 +31,25 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Sound effects on feedback changes
+    // Sound + haptic effects on feedback changes.
     ref.listen(gameProvider.select((g) => g.feedbackSignal), (prev, next) {
       if (prev == null || next == prev) return;
       final fb = ref.read(gameProvider).lastFeedback;
       if (fb == null) return;
       final audio = ref.read(audioServiceProvider);
+      final haptic = ref.read(hapticServiceProvider);
       if (fb == FeedbackKind.miss || fb == FeedbackKind.timeUp) {
         audio.play(SoundEffect.wrong);
+        haptic.error();
       } else {
         audio.play(SoundEffect.correct);
         final combo = ref.read(gameProvider).combo;
-        if (combo >= 5) audio.play(SoundEffect.combo);
+        if (combo >= 5) {
+          audio.play(SoundEffect.combo);
+          haptic.celebrate();
+        } else {
+          haptic.success();
+        }
       }
     });
 
@@ -63,8 +72,6 @@ class _GameScreenState extends ConsumerState<GameScreen> {
       }
     });
 
-    // Note: finished → result navigation is handled in _AppShell so interstitial ads can gate it.
-
     final g = ref.watch(gameProvider);
     return PopScope(
       canPop: false,
@@ -86,7 +93,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                   padding: EdgeInsets.all(context.s(16)),
                   child: Column(
                     children: [
-                      _TopBar(mode: g.mode),
+                      _TopBar(mode: g.mode, isDaily: g.isDailyChallenge),
                       SizedBox(height: context.s(8)),
                       const GameInfoBar(),
                       SizedBox(height: context.s(10)),
@@ -134,7 +141,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
 class _TopBar extends ConsumerWidget {
   final GameMode mode;
-  const _TopBar({required this.mode});
+  final bool isDaily;
+  const _TopBar({required this.mode, required this.isDaily});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -158,14 +166,32 @@ class _TopBar extends ConsumerWidget {
             ),
           ),
         ),
-        Text(
-          mode.label.toUpperCase(),
-          style: TextStyle(
-            color: mode.accent,
-            fontSize: context.s(12),
-            letterSpacing: 2,
-            fontWeight: FontWeight.w600,
-          ),
+        Row(
+          children: [
+            if (isDaily) ...[
+              Icon(Icons.local_fire_department_rounded,
+                  color: AppColors.gold, size: context.s(14)),
+              SizedBox(width: context.s(4)),
+              Text(
+                'DAILY · ',
+                style: TextStyle(
+                  color: AppColors.gold,
+                  fontSize: context.s(11),
+                  letterSpacing: 2,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+            Text(
+              mode.label.toUpperCase(),
+              style: TextStyle(
+                color: mode.accent,
+                fontSize: context.s(12),
+                letterSpacing: 2,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -203,6 +229,9 @@ class _GameArea extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     if (mode == GameMode.colorAlchemist) {
       return const BlendArea();
+    }
+    if (mode == GameMode.paletteMatch) {
+      return const PaletteMatchArea();
     }
     if (mode == GameMode.chromaRecall && phase == GamePhase.showing) {
       final target = ref.watch(gameProvider.select((g) => g.memoryTarget));
