@@ -5,6 +5,8 @@ import 'package:chromapulse/core/constants/app_colors.dart';
 class AppTheme {
   AppTheme._();
 
+  static bool useGoogleFonts = true;
+
   static const logoGradient1 = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
@@ -38,8 +40,11 @@ class AppTheme {
         onSurface: AppColors.text,
       ),
     );
+    final textTheme = useGoogleFonts
+        ? GoogleFonts.outfitTextTheme(base.textTheme)
+        : base.textTheme;
     return base.copyWith(
-      textTheme: GoogleFonts.outfitTextTheme(base.textTheme).apply(
+      textTheme: textTheme.apply(
         bodyColor: AppColors.text,
         displayColor: AppColors.text,
       ),
@@ -52,11 +57,21 @@ class AppTheme {
     FontWeight fontWeight = FontWeight.w700,
     Color color = AppColors.text,
     double letterSpacing = 0,
-  }) =>
-      GoogleFonts.spaceMono(
+  }) {
+    if (!useGoogleFonts) {
+      return TextStyle(
         fontSize: fontSize,
         fontWeight: fontWeight,
         color: color,
         letterSpacing: letterSpacing,
+        fontFamily: 'monospace',
       );
+    }
+    return GoogleFonts.spaceMono(
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      color: color,
+      letterSpacing: letterSpacing,
+    );
+  }
 }

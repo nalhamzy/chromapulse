@@ -87,13 +87,18 @@ class DailyChallengeBanner extends ConsumerWidget {
                 children: [
                   Row(
                     children: [
-                      Text(
-                        'DAILY CHALLENGE',
-                        style: TextStyle(
-                          color: completed ? AppColors.textDim : Colors.black87,
-                          fontSize: context.s(11),
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 2,
+                      Flexible(
+                        child: Text(
+                          'DAILY CHALLENGE',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color:
+                                completed ? AppColors.textDim : Colors.black87,
+                            fontSize: context.s(11),
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 1.2,
+                          ),
                         ),
                       ),
                       SizedBox(width: context.s(8)),

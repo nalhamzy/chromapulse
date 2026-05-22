@@ -19,7 +19,7 @@ class IapProduct {
 }
 
 class IapService {
-  final InAppPurchase _iap = InAppPurchase.instance;
+  InAppPurchase? _iapInstance;
   StreamSubscription<List<PurchaseDetails>>? _subscription;
   List<ProductDetails> _productDetails = [];
   bool available = false;
@@ -28,6 +28,8 @@ class IapService {
   /// Called when a purchase succeeds. Argument is the product ID.
   void Function(String productId)? onPurchaseSuccess;
   void Function(String)? onPurchaseError;
+
+  InAppPurchase get _iap => _iapInstance ??= InAppPurchase.instance;
 
   Future<void> initialize() async {
     available = await _iap.isAvailable();

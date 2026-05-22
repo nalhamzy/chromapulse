@@ -55,8 +55,10 @@ class MenuScreen extends ConsumerWidget {
                   SizedBox(height: context.s(12)),
                 ],
                 SizedBox(height: context.s(8)),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: context.s(6),
+                  runSpacing: context.s(2),
                   children: [
                     _MenuLink(
                       icon: Icons.shopping_bag_outlined,
@@ -68,7 +70,6 @@ class MenuScreen extends ConsumerWidget {
                         ref.read(screenProvider.notifier).go(AppScreen.shop);
                       },
                     ),
-                    SizedBox(width: context.s(12)),
                     _MenuLink(
                       icon: Icons.emoji_events_outlined,
                       label: 'AWARDS',
@@ -81,7 +82,6 @@ class MenuScreen extends ConsumerWidget {
                             .go(AppScreen.achievements);
                       },
                     ),
-                    SizedBox(width: context.s(12)),
                     _MenuLink(
                       icon: Icons.settings_outlined,
                       label: 'SETTINGS',
@@ -128,6 +128,14 @@ class _MenuLink extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton.icon(
       onPressed: onTap,
+      style: TextButton.styleFrom(
+        minimumSize: Size.zero,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        padding: EdgeInsets.symmetric(
+          horizontal: context.s(6),
+          vertical: context.s(8),
+        ),
+      ),
       icon: Icon(icon, color: AppColors.textDim, size: context.s(18)),
       label: Text(
         label,
