@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:chromapulse/core/models/achievement.dart';
+import 'package:chromapulse/core/models/game_record.dart';
 import 'package:chromapulse/core/models/game_state.dart';
 import 'package:chromapulse/core/models/player_stats.dart';
 import 'package:chromapulse/core/services/achievement_service.dart';
@@ -29,8 +30,9 @@ class PlayerNotifier extends Notifier<PlayerStats> {
 
   /// Records the end of a game and evaluates achievements. Pass the post-
   /// final-score [GameState]; the notifier handles totals, best, recent
-  /// history, daily streak, and achievement unlocks atomically.
-  void recordGameEnd(GameState game) {
+  /// history, daily streak, and achievement unlocks atomically. [now] is
+  /// injectable so tests can pin the timestamp of the dated history entry.
+  void recordGameEnd(GameState game, {DateTime? now}) {
     final modeId = game.mode.id;
     final score = game.score;
 
@@ -53,6 +55,24 @@ class PlayerNotifier extends Notifier<PlayerStats> {
     list.insert(0, score);
     if (list.length > 30) list.removeRange(30, list.length);
     updatedRecent[modeId] = list;
+
+    // Dated game log for the Progress screen (newest-first, capped).
+    final record = GameRecord(
+      modeId: modeId,
+      score: score,
+      correct: game.correct,
+      rounds: game.totalRounds,
+      avgTimeMs: (game.avgTimeSec * 1000).round(),
+      playedAtMs: (now ?? DateTime.now()).toUtc().millisecondsSinceEpoch,
+      daily: game.isDailyChallenge,
+    );
+    final updatedHistory = [record, ...state.history];
+    if (updatedHistory.length > PlayerStats.historyLimit) {
+      updatedHistory.removeRange(
+        PlayerStats.historyLimit,
+        updatedHistory.length,
+      );
+    }
 
     // Daily streak update (only if this run was a daily challenge AND we
     // haven't already booked today's streak — replays in the same day no-op).
@@ -82,6 +102,7 @@ class PlayerNotifier extends Notifier<PlayerStats> {
       totalRounds: newTotalRounds,
       bestByMode: updatedBest,
       recentScoresByMode: updatedRecent,
+      history: updatedHistory,
       lastDailyDate: () => newLastDaily,
       currentStreak: newCurrentStreak,
       longestStreak: newLongestStreak,
@@ -116,9 +137,28 @@ class PlayerNotifier extends Notifier<PlayerStats> {
     final newBest = totalScore > prevBest ? totalScore : prevBest;
     final updatedBest = Map<String, int>.from(state.bestByMode)
       ..[modeId] = newBest;
+
+    // The doubled score is the game's final score: keep the Stats sparkline
+    // and the Progress history in step with what the result screen showed.
+    final updatedRecent =
+        Map<String, List<int>>.from(state.recentScoresByMode);
+    final recent = updatedRecent[modeId];
+    if (recent != null && recent.isNotEmpty) {
+      updatedRecent[modeId] = [totalScore, ...recent.skip(1)];
+    }
+    var updatedHistory = state.history;
+    if (updatedHistory.isNotEmpty && updatedHistory.first.modeId == modeId) {
+      updatedHistory = [
+        updatedHistory.first.copyWith(score: totalScore),
+        ...updatedHistory.skip(1),
+      ];
+    }
+
     var updated = state.copyWith(
       totalScore: state.totalScore + bonusPoints,
       bestByMode: updatedBest,
+      recentScoresByMode: updatedRecent,
+      history: updatedHistory,
       rewardedAdsWatched: state.rewardedAdsWatched + 1,
     );
 

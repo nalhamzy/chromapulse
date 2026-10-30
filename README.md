@@ -40,7 +40,7 @@ lib/
 │   ├── services/              Storage, audio, ad service (mobile + web split), IAP service (mobile + web split)
 │   └── utils/                 Responsive helpers + color math (HSL→RGB, distance, accuracy)
 ├── providers/                 Riverpod providers (game, player, screen, audio, ad, iap)
-├── screens/                   Menu / Game / Result / Shop
+├── screens/                   Menu / Game / Result / Shop / Stats / Progress (history) / Achievements / Settings
 └── widgets/
     ├── common/                Buttons, logo, section card, ad banner
     └── game/                  Color grid/cell, timer bar, blend area, sliders, memory flash, toasts

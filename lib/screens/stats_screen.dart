@@ -8,6 +8,7 @@ import 'package:chromapulse/core/models/player_stats.dart';
 import 'package:chromapulse/core/services/audio_service.dart';
 import 'package:chromapulse/core/utils/responsive.dart';
 import 'package:chromapulse/providers/audio_provider.dart';
+import 'package:chromapulse/providers/history_provider.dart';
 import 'package:chromapulse/providers/navigation_provider.dart';
 import 'package:chromapulse/providers/player_provider.dart';
 import 'package:chromapulse/widgets/common/section_card.dart';
@@ -38,6 +39,8 @@ class StatsScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       _OverviewCard(p),
+                      SizedBox(height: context.s(12)),
+                      _HistoryTeaser(player: p),
                       SizedBox(height: context.s(16)),
                       _SectionTitle('Per-mode'),
                       SizedBox(height: context.s(8)),
@@ -199,19 +202,19 @@ class _OverviewCard extends StatelessWidget {
   }
 }
 
-class _ModeCard extends StatelessWidget {
+class _ModeCard extends ConsumerWidget {
   final PlayerStats player;
   final GameMode mode;
 
   const _ModeCard({required this.player, required this.mode});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final best = player.bestFor(mode.id);
     final history = player.recentScoresByMode[mode.id] ?? const <int>[];
     final games = history.length;
 
-    return SectionCard(
+    final card = SectionCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -300,6 +303,18 @@ class _ModeCard extends StatelessWidget {
         ],
       ),
     );
+
+    // Tap a mode with games to open its full progress view.
+    if (history.isEmpty) return card;
+    return InkWell(
+      borderRadius: BorderRadius.circular(context.s(16)),
+      onTap: () {
+        ref.read(audioServiceProvider).play(SoundEffect.buttonTap);
+        ref.read(historyFocusProvider.notifier).focus(mode.id);
+        ref.read(screenProvider.notifier).go(AppScreen.history);
+      },
+      child: card,
+    );
   }
 }
 
@@ -362,6 +377,68 @@ class _SparklinePainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _SparklinePainter oldDelegate) =>
       oldDelegate.values != values;
+}
+
+class _HistoryTeaser extends ConsumerWidget {
+  final PlayerStats player;
+  const _HistoryTeaser({required this.player});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final played = player.recentScoresByMode.values.any((l) => l.isNotEmpty);
+    return InkWell(
+      borderRadius: BorderRadius.circular(context.s(16)),
+      onTap: () {
+        ref.read(audioServiceProvider).play(SoundEffect.buttonTap);
+        ref.read(historyFocusProvider.notifier).focus(null);
+        ref.read(screenProvider.notifier).go(AppScreen.history);
+      },
+      child: SectionCard(
+        child: Row(
+          children: [
+            Container(
+              width: context.s(40),
+              height: context.s(40),
+              decoration: BoxDecoration(
+                color: AppColors.accent.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(context.s(10)),
+              ),
+              alignment: Alignment.center,
+              child: const Icon(Icons.show_chart_rounded,
+                  color: AppColors.accent),
+            ),
+            SizedBox(width: context.s(12)),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Progress & history',
+                    style: TextStyle(
+                      color: AppColors.text,
+                      fontSize: context.s(15),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  SizedBox(height: context.s(2)),
+                  Text(
+                    played
+                        ? 'Score charts, trends and every recent game'
+                        : 'Your charts and trends start after your first game',
+                    style: TextStyle(
+                      color: AppColors.textDim,
+                      fontSize: context.s(12),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right_rounded, color: AppColors.textDim),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _AchievementsTeaser extends ConsumerWidget {

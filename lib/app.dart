@@ -11,6 +11,7 @@ import 'package:chromapulse/providers/navigation_provider.dart';
 import 'package:chromapulse/providers/player_provider.dart';
 import 'package:chromapulse/screens/achievements_screen.dart';
 import 'package:chromapulse/screens/game_screen.dart';
+import 'package:chromapulse/screens/history_screen.dart';
 import 'package:chromapulse/screens/menu_screen.dart';
 import 'package:chromapulse/screens/result_screen.dart';
 import 'package:chromapulse/screens/settings_screen.dart';
@@ -117,6 +118,8 @@ class _AppShellState extends ConsumerState<_AppShell> {
         return const ShopScreen();
       case AppScreen.stats:
         return const StatsScreen();
+      case AppScreen.history:
+        return const HistoryScreen();
       case AppScreen.achievements:
         return const AchievementsScreen();
       case AppScreen.settings:

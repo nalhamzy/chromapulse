@@ -6,6 +6,7 @@ enum AppScreen {
   result,
   shop,
   stats,
+  history,
   achievements,
   settings,
 }

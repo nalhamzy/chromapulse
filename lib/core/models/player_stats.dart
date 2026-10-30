@@ -1,11 +1,16 @@
 import 'dart:convert';
 import 'package:equatable/equatable.dart';
+import 'package:chromapulse/core/models/game_record.dart';
 
 /// Persisted player profile. v1.1.0 adds streak, achievements, recent-score
 /// history, haptics flag, and engagement counters used by the achievement
 /// evaluator. All new fields are optional in [fromJson] so installs upgrading
-/// from 1.0.x decode cleanly.
+/// from 1.0.x decode cleanly. v1.2.0 adds [history], a dated per-game log that
+/// powers the Progress screen.
 class PlayerStats extends Equatable {
+  /// Max finished games kept in [history].
+  static const int historyLimit = 60;
+
   // — Lifetime totals (v1.0+) —
   final int totalGames;
   final int totalScore;
@@ -37,6 +42,9 @@ class PlayerStats extends Equatable {
   final int rewardedAdsWatched;
   final int sharesCount;
 
+  // — Dated game log (v1.2) — last [historyLimit] games, newest-first.
+  final List<GameRecord> history;
+
   const PlayerStats({
     this.totalGames = 0,
     this.totalScore = 0,
@@ -54,6 +62,7 @@ class PlayerStats extends Equatable {
     this.recentScoresByMode = const {},
     this.rewardedAdsWatched = 0,
     this.sharesCount = 0,
+    this.history = const [],
   });
 
   int bestFor(String modeId) => bestByMode[modeId] ?? 0;
@@ -91,6 +100,7 @@ class PlayerStats extends Equatable {
     Map<String, List<int>>? recentScoresByMode,
     int? rewardedAdsWatched,
     int? sharesCount,
+    List<GameRecord>? history,
   }) =>
       PlayerStats(
         totalGames: totalGames ?? this.totalGames,
@@ -111,6 +121,7 @@ class PlayerStats extends Equatable {
         recentScoresByMode: recentScoresByMode ?? this.recentScoresByMode,
         rewardedAdsWatched: rewardedAdsWatched ?? this.rewardedAdsWatched,
         sharesCount: sharesCount ?? this.sharesCount,
+        history: history ?? this.history,
       );
 
   Map<String, dynamic> toJson() => {
@@ -131,6 +142,7 @@ class PlayerStats extends Equatable {
             .map((k, v) => MapEntry(k, List<int>.from(v))),
         'rewardedAdsWatched': rewardedAdsWatched,
         'sharesCount': sharesCount,
+        'history': history.map((r) => r.toJson()).toList(),
       };
 
   static PlayerStats fromJson(Map<String, dynamic> j) => PlayerStats(
@@ -161,7 +173,20 @@ class PlayerStats extends Equatable {
             const {},
         rewardedAdsWatched: j['rewardedAdsWatched'] as int? ?? 0,
         sharesCount: j['sharesCount'] as int? ?? 0,
+        history: _decodeHistory(j['history']),
       );
+
+  /// Skips malformed entries instead of failing the whole profile decode.
+  static List<GameRecord> _decodeHistory(Object? raw) {
+    if (raw is! List) return const [];
+    final out = <GameRecord>[];
+    for (final e in raw) {
+      final r = GameRecord.tryFromJson(e);
+      if (r != null) out.add(r);
+      if (out.length >= historyLimit) break;
+    }
+    return out;
+  }
 
   String encode() => jsonEncode(toJson());
 
@@ -191,5 +216,6 @@ class PlayerStats extends Equatable {
         recentScoresByMode,
         rewardedAdsWatched,
         sharesCount,
+        history,
       ];
 }
