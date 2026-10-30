@@ -21,7 +21,7 @@ workflows:
       # was revoked during the 2026-07-06 cert reset. CERTIFICATE_PRIVATE_KEY
       # (secure var in the `ios_signing` group, base64-encoded PEM) pins one
       # reusable Apple Distribution certificate across builds.
-      flutter: stable
+      flutter: 3.41.1
       xcode: latest
       cocoapods: default
       java: 17
@@ -113,7 +113,7 @@ workflows:
       # Signing migrated 2026-08-22 to the fetch-signing-files pattern:
       # the stored-identity flow broke when `studio_distribution_2026`
       # was revoked during the 2026-07-06 cert reset.
-      flutter: stable
+      flutter: 3.41.1
       xcode: latest
       cocoapods: default
       groups:
@@ -179,7 +179,7 @@ workflows:
     max_build_duration: 30
     instance_type: mac_mini_m2
     environment:
-      flutter: stable
+      flutter: 3.41.1
       java: 17
       groups:
         - google_play
